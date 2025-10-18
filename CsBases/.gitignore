@@ -1,0 +1,12 @@
+# compilation folders
+[Bb]in/
+[Oo]bj/
+
+# user and solution files
+*.user
+*.suo
+*.vs/
+
+# another compilation files
+*.pdb
+*.log
