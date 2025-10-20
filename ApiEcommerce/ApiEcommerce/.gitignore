@@ -1,0 +1,21 @@
+# bin and library directories
+[Dd]ebug/
+[Rr]elease/
+bin/
+obj/
+
+# solution and project files
+*.pdb
+*.suo
+*.user
+*.useros
+*.vspscc
+*.vssscc
+
+# vscode files
+.vscode/
+
+# test and specific binary files
+*.dll
+*.exe
+*.nupkg

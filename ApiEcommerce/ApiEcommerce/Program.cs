@@ -11,7 +11,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwaggerUI(); // Swashbuckle middleware for interface to interact with the api
+    app.MapOpenApi(); // Registers Json documentation of the api
 }
 
 app.UseHttpsRedirection();
