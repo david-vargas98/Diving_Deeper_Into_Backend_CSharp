@@ -1,6 +1,7 @@
 using System;
 using ApiEcommerce.Models;
 using ApiEcommerce.Repository.IRepository;
+using Microsoft.EntityFrameworkCore;
 
 namespace ApiEcommerce.Repository;
 
@@ -13,7 +14,7 @@ public class ProductRepository : IProductRepository
     }
     public bool BuyProduct(string name, int quantity)
     {
-        if(string.IsNullOrWhiteSpace(name) || quantity <= 0)
+        if (string.IsNullOrWhiteSpace(name) || quantity <= 0)
             return false;
 
         var product = _db.Products.FirstOrDefault(p => p.Name.ToLower().Trim() == name.ToLower().Trim());
@@ -53,12 +54,12 @@ public class ProductRepository : IProductRepository
         if (id <= 0)
             return null;
 
-        return _db.Products.FirstOrDefault(p => p.ProductId == id);
+        return _db.Products.Include(p => p.category).FirstOrDefault(p => p.ProductId == id);
     }
 
     public ICollection<Product> GetProducts()
     {
-        return _db.Products.OrderBy(p => p.Name).ToList();
+        return _db.Products.Include(p => p.category).OrderBy(p => p.Name).ToList();
     }
 
     public ICollection<Product> GetProductsByCategory(int categoryId)
@@ -66,7 +67,7 @@ public class ProductRepository : IProductRepository
         if (categoryId <= 0)
             return new List<Product>();
 
-        return _db.Products.Where(p => p.CategoryId == categoryId).OrderBy(p => p.Name).ToList();
+        return _db.Products.Include(p => p.category).Where(p => p.CategoryId == categoryId).OrderBy(p => p.Name).ToList();
     }
 
     public bool ProductExists(int id)
@@ -74,7 +75,7 @@ public class ProductRepository : IProductRepository
         if (id <= 0)
             return false;
 
-        return _db.Products.Any(p => p.CategoryId == id);
+        return _db.Products.Any(p => p.ProductId == id);
     }
 
     public bool ProductExists(string name)
@@ -90,13 +91,17 @@ public class ProductRepository : IProductRepository
         return _db.SaveChanges() >= 0;
     }
 
-    public ICollection<Product> SearchProduct(string name)
+    public ICollection<Product> SearchProducts(string searchTerm)
     {
         IQueryable<Product> query = _db.Products;
+        var searchTermLower = searchTerm.ToLower().Trim();
 
-        if (!string.IsNullOrWhiteSpace(name))
+        if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            query = query.Where(p => p.Name.ToLower().Trim() == name.ToLower().Trim());
+            query = query
+                    .Include(p => p.category)
+                    .Where(p => p.Name.ToLower().Trim().Contains(searchTermLower) ||
+                                p.Description.ToLower().Trim().Contains(searchTermLower));
         }
 
         return query.OrderBy(p => p.Name).ToList();
