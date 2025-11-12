@@ -1,4 +1,4 @@
-using ApiEcommerce.Controllers;
+using ApiEcommerce.Constants;
 using ApiEcommerce.Repository;
 using ApiEcommerce.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
