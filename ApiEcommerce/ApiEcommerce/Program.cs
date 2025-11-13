@@ -5,6 +5,7 @@ using ApiEcommerce.Repository.IRepository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,13 +35,44 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
         ValidateIssuer = false,
-        ValidateAudience = true
+        ValidateAudience = false
     };
 });
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+
+builder.Services.AddSwaggerGen(
+  options =>
+  {
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+      Description = "Our API get use of the JWT authentication by using the Bearer schema. \n\r\n\r" +
+                    "Enter the string that was generated with the Login method.\n\r\n\r" +
+                    "Example: \"12345abcdef\"",
+      Name = "Authorization",
+      In = ParameterLocation.Header,
+      Type = SecuritySchemeType.Http,
+      Scheme = "Bearer"
+    });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement()
+    {
+      {
+        new OpenApiSecurityScheme
+        {
+          Reference = new OpenApiReference
+          {
+            Type = ReferenceType.SecurityScheme,
+            Id = "Bearer"
+          },
+          Scheme = "oauth2",
+          Name = "Bearer",
+          In = ParameterLocation.Header
+        },
+        new List<string>()
+      }
+    });
+  }
+);
 
 // setting CORS policy
 builder.Services.AddCors(options =>
@@ -56,10 +88,11 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi(); // Registers Json documentation of the api
+    app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
-        options.SwaggerEndpoint("/openapi/v1.json", "Test");
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "API Ecommerce v1");
+        options.RoutePrefix = string.Empty;
     });
 }
 
