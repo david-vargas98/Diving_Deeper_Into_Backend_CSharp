@@ -1,3 +1,4 @@
+using ApiEcommerce.Constants;
 using ApiEcommerce.Models.Dtos;
 using ApiEcommerce.Repository.IRepository;
 using AutoMapper;
@@ -38,14 +39,17 @@ namespace ApiEcommerce.Controllers
 
         [AllowAnonymous]
         [HttpGet("{id:int}", Name = "GetCategory")]
+        //[ResponseCache(Duration = 10)] // setting cache time directly
+        [ResponseCache(CacheProfileName = CacheProfiles.Default20)] // setting cache time through profiles
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult GetCategory(int id)
         {
+            System.Console.WriteLine($"Category with id: {id} at {DateTime.Now}");
             var category = _categoryRepository.GetCategory(id);
-
+            System.Console.WriteLine($"Response with id: {id}");
             if (category == null)
                 return NotFound($"The category with id {id} does not exists");
 
@@ -111,7 +115,7 @@ namespace ApiEcommerce.Controllers
             }
             return NoContent();
         }
-        
+
         [HttpDelete("{id:int}", Name = "DeleteCategory")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
